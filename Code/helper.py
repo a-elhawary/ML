@@ -5,6 +5,20 @@ import math
 from matplotlib import pyplot as plt
 
 
+def insertSorted(accuracy, params, accuracyArr, paramsArr):
+    idx = -1
+    for k in range(len(accuracyArr)):
+        if accuracy > accuracyArr[k]:
+            idx = k
+            break
+    if idx == -1:
+        accuracyArr.append(accuracy)
+        paramsArr.append(params)
+    else:
+        accuracyArr.insert(idx, accuracy)
+        paramsArr.insert(idx, params)
+
+
 def getImages(IMG_SIZE, filename, dataset, size):
     print("../data/"+dataset+"/"+filename+"images")
     filePath = "../data/"+dataset+"/"+filename+"images"

@@ -2,6 +2,34 @@ import sys
 from sklearn.svm import SVC
 import helper as help
 
+def tuneHyperParams(trainImages, trainLabels, valImages, valLabels):
+    paramsArr = []
+    accuracyArr = []
+    # Try linear SVM
+    params = {"kernel":"linear"}
+    svm = SVC(**params)
+    svm.fit(trainImages, trainLabels)
+    accuracyArr.append(help.testAccuracy(svm, valImages, valLabels))
+    paramsArr.append(params)
+
+    # Try some polynomial kernel SVMS
+    for degree in range(2, 6):
+        params = {"kernel":"poly", "degree":degree}
+        svm = SVC(**params)
+        svm.fit(trainImages, trainLabels)
+        accuracy = help.testAccuracy(svm, valImages, valLabels)
+        help.insertSorted(accuracy, params, accuracyArr, paramsArr)
+
+    # Try some polynomial kernel SVMS
+    gammas = ["scale", "auto"]
+    for gamma in gammas:
+        params = {"kernel":"rbf", "gamma":gamma}
+        svm = SVC(**params)
+        svm.fit(trainImages, trainLabels)
+        accuracy = help.testAccuracy(svm, valImages, valLabels)
+        help.insertSorted(accuracy, params, accuracyArr, paramsArr)
+    return accuracyArr, paramsArr
+
 
 def main():
     dataset = "digitdata"
@@ -16,11 +44,12 @@ def main():
     valImages, valLabels = help.getImages(n[1], "validation", dataset, size)
     testImages, testLabels = help.getImages(n[2], "test", dataset, size)
     print("Datasets Loaded...")
-    svm = SVC(kernel="linear")
+    accuracyArr, paramsArr = tuneHyperParams(trainImages, trainLabels, valImages, valLabels)
+    print(paramsArr)
+    print(accuracyArr)
+    svm = SVC(**paramsArr[0])
     svm.fit(trainImages, trainLabels)
-    tImages = valImages + testImages
-    tLabels = valLabels + testLabels
-    acc = help.testAccuracy(svm, tImages, tLabels, True, size)
+    acc = help.testAccuracy(svm, testImages, testLabels, True, size)
     print(acc)
 
 
